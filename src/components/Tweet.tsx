@@ -1,116 +1,127 @@
-import React from 'react'
+import {
+    ChartBarIcon,
+    ChatIcon,
+    DotsHorizontalIcon,
+    HeartIcon,
+    ShareIcon,
+    SwitchHorizontalIcon,
+    TrashIcon,
+} from "@heroicons/react/outline";
+import {
+    HeartIcon as HeartIconFilled,
+    ChatIcon as ChatIconFilled,
+} from "@heroicons/react/solid";
+import { useEffect, useState } from "react";
+import Moment from "react-moment";
+import { socket } from "../socket";
 
-interface IProfile {
-    username: string;
-    fullname: string;
-    imgUrl: string;
-    isVerified: boolean;
-}
+function Tweet({ tweet }: any) {
+    const [liked, setLiked] = useState(false);
+    const [likes, setLikes] = useState(tweet.likes as number);
 
-interface ITweet {
-    content: string;
-    imgUrl: string;
-    likes: number;
-    retweets: number;
-    childTweets: string[];
-    createdAt: Date;
-}
 
-function Tweet({ profile, tweet }: { profile: IProfile, tweet: ITweet }) {
+    useEffect(() => {
+        setLikes(tweet.likes)
+    }, [tweet.likes]);
+    
+    const handleLike = () => {
+        const data = {
+            count: liked ? -1 : 1,
+            tweetId: tweet?._id
+        }
+        setLiked((liked) => !liked);
+        setLikes((likes) => liked ? -1 : 1 + likes);
+        socket.emit("tweet:like", data);
+    }
+
+
     return (
-        <div id="tweet" className="flex border-b border-gray-700 bg-black duration-200 cursor-pointer pt-2 pl-3">
-            <div className="flex-shrink-0 my-1">
-                <div id="picture" className="rounded-full">
-                    <div className="rounded-full hover:opacity-80 duration-200 overflow-hidden">
-                        <img className="object-cover w-12 h-12" src={`${profile.imgUrl}`} />
-                    </div>
-                </div>
-            </div>
-            <div className="flex-col my-1 mx-3">
-                <div id="title" className="flex items-center justify-between">
-                    <div id="details" className="flex flex-shrink-0 space-x-1">
-                        <div className="text-white font-bold hover:underline">
-                            {profile.fullname}
-                        </div>
-                        <div className="text-gray-500">
-                            {profile.username}
-                        </div>
-                        <div className="text-gray-500">
-                            ·
-                        </div>
-                        <div className="text-gray-500 hover:underline">
-                            {CalcTime(tweet.createdAt)}
-                        </div>
-                    </div>
-                    <div id="options">
-                        <div className="w-7 text-gray-400 hover:text-blue-400 hover:bg-blue-100 duration-200 rounded-full p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div id="body" className=" pr-2">
-                    <div id="text" >
-                        {tweet.content}
-                    </div>
-                    <div id="media" className="hover:bg-gray-600 duration-200 rounded-2xl border border-gray-700 cursor-pointer overflow-hidden mt-4">
-                        <img className="object-contain  " src={`${tweet.imgUrl}`} />
-                    </div>
-                </div>
-                <div id="buttons" className="flex justify-between items-center mt-1">
+        <div
+            className="p-3 flex cursor-pointer border-b border-gray-700"
+        >
+            <img
+                src={tweet.user_id?.image}
+                alt="avatar-image"
+                className="h-11 w-11 rounded-full mr-4"
+            />
 
-                    <div className="w-full flex items-center">
-                        <div className="w-9 text-gray-400 hover:text-green-400 hover:bg-green-100 duration-200 rounded-full p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
+            <div className="flex flex-col space-y-2 w-full">
+                <div className={`flex justify-between`}>
+                    <div className="text-[#6e767d]">
+                        <div className="inline-block group">
+                            <h4
+                                className={`font-bold text-[15px] sm:text-base text-[#d9d9d9] group-hover:underline inline-block`}
+                            >
+                                {tweet.user_id?.name}
+                            </h4>
+                            <span
+                                className={`text-sm sm:text-[15px] ml-1.5`}
+                            >
+                                @{tweet.user_id?.username}
+                            </span>
                         </div>
-                        <text>
-                            {tweet.likes}
-                        </text>
+                        {/* ·{" "} */}
+                        <span className="hover:underline text-sm sm:text-[15px]">
+                            {/* <Moment fromNow>{tweet.createdAt.toDate()}</Moment> */}
+                        </span>
+                        <p className="text-[#d9d9d9] text-[15px] sm:text-base mt-0.5">
+                            {tweet.content}
+                        </p>
                     </div>
-                    <div className="w-full flex items-center">
-                        <div className="w-9 text-gray-400 hover:text-red-400 hover:bg-red-100 duration-200 rounded-full p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </div>
-                        <text>
-                            {tweet.retweets}
-                        </text>
+                    <div className="icon group flex-shrink-0 ml-auto">
+                        <DotsHorizontalIcon className="h-5 text-[#6e767d] group-hover:text-[#1d9bf0]" />
                     </div>
-                    <div className="w-full flex items-center">
-                        <div className="w-9 text-gray-400 hover:text-blue-400 hover:bg-blue-100 duration-200 rounded-full p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
+                </div>
+                {tweet.image &&
+
+                    (<img
+                        src={tweet.image}
+                        alt="tweet-image"
+                        className="rounded-2xl max-h-[700px] object-cover mr-2"
+                    />)
+                }
+                <div
+                    className={`text-[#6e767d] flex justify-between w-10/12`}
+                >
+                    <div
+                        className="flex items-center space-x-1 group"
+                    >
+                        <div className="icon group-hover:bg-[#1d9bf0] group-hover:bg-opacity-10">
+                            <ChatIcon className="h-5 group-hover:text-[#1d9bf0]" />
                         </div>
+                    </div>
+
+                    <div
+                        className="flex items-center space-x-1 group"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleLike();
+                        }}
+                    >
+                        <div className="icon group-hover:bg-pink-600/10">
+                            {liked ? (
+                                <HeartIconFilled className="h-5 text-pink-600" />
+                            ) : (
+                                <HeartIcon className="h-5 group-hover:text-pink-600" />
+                            )}
+                        </div>
+                        {likes > 0 && (
+                            <span
+                                className={`group-hover:text-pink-600 text-sm ${liked && "text-pink-600"
+                                    }`}
+                            >
+                                {likes}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="icon group">
+                        <ShareIcon className="h-5 group-hover:text-[#1d9bf0]" />
                     </div>
                 </div>
             </div>
         </div>
-
-    )
+    );
 }
 
-const CalcTime = (date: Date) => {
-    const diff = (Date.now() - date.getTime()) / 1000;
-
-    let result: String;
-
-    if (diff < 60) {
-        result = diff.toFixed(0) + 's';
-    }
-    else if (diff < 60 * 60) {
-        result = (diff / 60).toFixed(0) + 'm';
-    }
-    else if (diff < 24 * 60 * 60) {
-        result = (diff / (60 * 60)).toFixed(0) + 'h';
-    } else {
-        result = date.toLocaleDateString();
-    }
-
-    return result;
-}
-export default Tweet
+export default Tweet;
