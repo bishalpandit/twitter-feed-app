@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import { socket } from "../socket";
 import { authState } from "../store";
-import baseUrl from "../utils/baseUrl";
+import { SERVER_URL } from "../config.keys";
 
 function CreateTweet() {
   const [input, setInput] = useState("");
@@ -24,7 +24,7 @@ function CreateTweet() {
 
     const tweet = {
       content: input,
-      user: auth.user,
+      user_id: auth.user,
       image: selectedFile,
       likes: 0
     };
@@ -49,7 +49,7 @@ function CreateTweet() {
   };
 
   const logoutHandler = () => {
-    axios.get(`${baseUrl}/auth/logout`, {
+    axios.get(`${SERVER_URL}/auth/logout`, {
       withCredentials: true
     })
       .then(() => {

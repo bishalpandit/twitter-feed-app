@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios from "axios"
-import baseUrl from '../utils/baseUrl';
+import { SERVER_URL } from "../config.keys";
 
 function Login() {
     const [loading, setLoading] = useState(false);
@@ -8,7 +8,7 @@ function Login() {
     const handleLogin = () => {
         try {
             setLoading(true);
-            const googleLoginURL: any = `${baseUrl}/auth/login`;
+            const googleLoginURL: any = `${SERVER_URL}/auth/login`;
             window.location.href = googleLoginURL;
         } catch (error) {
             console.log(error);

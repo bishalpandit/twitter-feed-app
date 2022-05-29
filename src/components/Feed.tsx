@@ -3,28 +3,16 @@ import { useCallback, useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { socket } from "../socket";
 import { tweetsState } from "../store";
-import CreatePost from "./CreatePost";
+import CreateTweet from "./CreateTweet";
 import Tweet from "./Tweet";
 
 function Feed({ user }: any) {
   const [tweets, setTweets] = useRecoilState<any>(tweetsState);
 
-  const onNewTweets = useCallback(
-    ({ tweets }: any) => {
+  useEffect(() => {
+    socket.on("tweet:all", ({ tweets }: any) => {
       setTweets([...tweets]);
-    },
-    [setTweets, tweets],
-  );
-
-
-  useEffect(() => {
-    socket.on("tweet:all", onNewTweets)
-    return () => {
-      socket.off("tweet:all", onNewTweets);
-    };
-  }, [onNewTweets, socket]);
-
-  useEffect(() => {
+    })
     socket.emit("tweet:list", {});
   }, [])
 
@@ -37,11 +25,11 @@ function Feed({ user }: any) {
           <SparklesIcon className="h-5 text-sky-500" />
         </div>
       </div>
-      <CreatePost />
+      <CreateTweet />
       <div className="pb-72">
         {
           tweets.map((tweet: any, idx: any) =>
-            <Tweet key={idx} tweet={tweet} />
+            <Tweet key={idx} tweet={tweet} user={user} />
           )
         }
       </div>
@@ -50,3 +38,18 @@ function Feed({ user }: any) {
 }
 
 export default Feed;
+
+  // const onNewTweets = useCallback(
+  //   ({ tweets }: any) => {
+  //     setTweets([...tweets]);
+  //   },
+  //   [setTweets, tweets],
+  // );
+
+
+  // useEffect(() => {
+  //   socket.on("tweet:all", onNewTweets)
+  //   return () => {
+  //     socket.off("tweet:all", onNewTweets);
+  //   };
+  // }, [onNewTweets, socket]);

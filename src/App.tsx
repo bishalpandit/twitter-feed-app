@@ -5,7 +5,7 @@ import { useRecoilState } from 'recoil'
 import { authState } from './store/index'
 import Login from './components/Login';
 import axios from 'axios';
-import baseUrl from './utils/baseUrl';
+import { SERVER_URL } from './config.keys';
 
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
 
   useEffect(() => {
     const checkLogin = () => {
-      axios.get(`${baseUrl}/auth/checkauth`, {
+      axios.get(`${SERVER_URL}/auth/checkauth`, {
         withCredentials: true
       })
         .then((res) => {

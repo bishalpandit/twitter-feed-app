@@ -4,7 +4,6 @@ import {
     DotsHorizontalIcon,
     HeartIcon,
     ShareIcon,
-    SwitchHorizontalIcon,
     TrashIcon,
 } from "@heroicons/react/outline";
 import {
@@ -15,7 +14,7 @@ import { useEffect, useState } from "react";
 import Moment from "react-moment";
 import { socket } from "../socket";
 
-function Tweet({ tweet }: any) {
+function Tweet({ tweet, user }: any) {
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(tweet.likes as number);
 
@@ -23,7 +22,7 @@ function Tweet({ tweet }: any) {
     useEffect(() => {
         setLikes(tweet.likes)
     }, [tweet.likes]);
-    
+
     const handleLike = () => {
         const data = {
             count: liked ? -1 : 1,
@@ -32,6 +31,11 @@ function Tweet({ tweet }: any) {
         setLiked((liked) => !liked);
         setLikes((likes) => liked ? -1 : 1 + likes);
         socket.emit("tweet:like", data);
+    }
+
+    const handleDelete = () => {
+        const tweetId = tweet._id;
+        socket.emit("tweet:remove", tweetId);
     }
 
 
@@ -116,8 +120,16 @@ function Tweet({ tweet }: any) {
                     </div>
 
                     <div className="icon group">
-                        <ShareIcon className="h-5 group-hover:text-[#1d9bf0]" />
+                        <ShareIcon className="h-5 group-hover:text-emerald-400" />
                     </div>
+                    {
+                        (tweet.user_id._id === user._id) &&
+                        (
+                            <div className="icon group" onClick={handleDelete}>
+                                <TrashIcon className="h-5 group-hover:text-red-500" />
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </div>
